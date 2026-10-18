@@ -1,20 +1,25 @@
 /**
- * In-memory notes store.
- *
- * Notes are kept in a Map keyed by id. The store is deliberately simple: it
- * exists so the API has something real to read from and write to without
- * pulling in a database for a demo.
+ * In-memory notes store. Every note belongs to one owner. The store does not
+ * enforce access itself; the API layer checks ownership before reads and writes.
  */
 
 export interface Note {
   id: string;
+  ownerId: string;
   title: string;
   body: string;
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface NewNote {
+  ownerId: string;
   title: string;
+  body?: string;
+}
+
+export interface NoteUpdate {
+  title?: string;
   body?: string;
 }
 
@@ -22,10 +27,11 @@ export class NotesStore {
   private readonly notes = new Map<string, Note>();
   private nextId = 1;
 
-  list(): Note[] {
-    return Array.from(this.notes.values()).sort((a, b) =>
-      a.createdAt < b.createdAt ? -1 : a.createdAt > b.createdAt ? 1 : 0,
-    );
+  /** Notes belonging to one owner, oldest first. */
+  listByOwner(ownerId: string): Note[] {
+    return Array.from(this.notes.values())
+      .filter((note) => note.ownerId === ownerId)
+      .sort((a, b) => Number(a.id) - Number(b.id));
   }
 
   get(id: string): Note | undefined {
@@ -33,14 +39,38 @@ export class NotesStore {
   }
 
   create(input: NewNote): Note {
+    const now = new Date().toISOString();
     const note: Note = {
       id: String(this.nextId++),
+      ownerId: input.ownerId,
       title: input.title,
       body: input.body ?? "",
-      createdAt: new Date().toISOString(),
+      createdAt: now,
+      updatedAt: now,
     };
     this.notes.set(note.id, note);
     return note;
+  }
+
+  update(id: string, patch: NoteUpdate): Note | undefined {
+    const existing = this.notes.get(id);
+    if (existing === undefined) return undefined;
+    const updated: Note = {
+      ...existing,
+      title: patch.title ?? existing.title,
+      body: patch.body ?? existing.body,
+      updatedAt: new Date().toISOString(),
+    };
+    this.notes.set(id, updated);
+    return updated;
+  }
+
+  delete(id: string): boolean {
+    return this.notes.delete(id);
+  }
+
+  get size(): number {
+    return this.notes.size;
   }
 
   clear(): void {
