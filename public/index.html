@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Notes</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar__inner">
+        <a class="brand" href="/">Notes</a>
+        <nav class="topbar__nav" id="nav" aria-live="polite"></nav>
+      </div>
+    </header>
+
+    <main class="main">
+      <div class="banner banner--error" id="error" role="alert" hidden></div>
+
+      <section class="panel" id="auth-panel" hidden>
+        <div class="tabs" role="tablist" aria-label="Sign in or create an account">
+          <button class="tab is-active" role="tab" aria-selected="true" data-mode="login" id="tab-login">Sign in</button>
+          <button class="tab" role="tab" aria-selected="false" data-mode="register" id="tab-register">Create account</button>
+        </div>
+        <form class="form" id="auth-form" novalidate>
+          <label class="field">
+            <span class="field__label">Email</span>
+            <input class="field__input" type="email" name="email" autocomplete="username" required />
+            <span class="field__error" data-error-for="email"></span>
+          </label>
+          <label class="field">
+            <span class="field__label">Password</span>
+            <input class="field__input" type="password" name="password" autocomplete="current-password" minlength="8" required />
+            <span class="field__error" data-error-for="password"></span>
+            <span class="field__hint" id="password-hint" hidden>At least 8 characters.</span>
+          </label>
+          <button class="button button--primary" type="submit" id="auth-submit">Sign in</button>
+        </form>
+      </section>
+
+      <section class="panel" id="notes-panel" hidden>
+        <form class="form form--inline" id="note-form" novalidate>
+          <label class="field">
+            <span class="field__label">Title</span>
+            <input class="field__input" type="text" name="title" maxlength="200" required placeholder="What is this about?" />
+            <span class="field__error" data-error-for="title"></span>
+          </label>
+          <label class="field">
+            <span class="field__label">Body</span>
+            <textarea class="field__input field__input--textarea" name="body" rows="3" maxlength="20000" placeholder="Optional"></textarea>
+            <span class="field__error" data-error-for="body"></span>
+          </label>
+          <button class="button button--primary" type="submit">Add note</button>
+        </form>
+        <div class="notes-header">
+          <h2 class="notes-header__title">Your notes</h2>
+          <span class="notes-header__count" id="note-count"></span>
+        </div>
+        <p class="empty" id="notes-empty" hidden>No notes yet. Add one above.</p>
+        <ul class="notes" id="notes-list"></ul>
+      </section>
+
+      <section class="panel panel--loading" id="loading-panel"><p>Loading…</p></section>
+    </main>
+
+    <template id="note-template">
+      <li class="note">
+        <div class="note__head">
+          <h3 class="note__title"></h3>
+          <button class="button button--ghost note__delete" type="button" aria-label="Delete note">Delete</button>
+        </div>
+        <p class="note__body"></p>
+        <time class="note__time"></time>
+      </li>
+    </template>
+
+    <script src="/app.js" defer></script>
+  </body>
+</html>

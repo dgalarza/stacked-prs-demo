@@ -2,6 +2,7 @@ import express from "express";
 import { NotesStore } from "./notes/store.js";
 import { SessionStore, UserStore, attachSession, createSessionCookieWriter } from "./auth/index.js";
 import { apiRouter } from "./api/index.js";
+import { staticRouter } from "./web/index.js";
 
 export interface AppOptions {
   notes?: NotesStore;
@@ -10,6 +11,8 @@ export interface AppOptions {
   /** Set `Secure` on the session cookie. Default `false` for local HTTP. */
   secureCookies?: boolean;
   logError?: (err: unknown) => void;
+  /** Serve the frontend from `public/`. Default `true`. */
+  serveStatic?: boolean;
 }
 
 /**
@@ -32,6 +35,7 @@ export function createApp(options: AppOptions = {}) {
   });
 
   app.use("/api", apiRouter({ users, sessions, notes, cookies, logError: options.logError }));
+  if (options.serveStatic ?? true) app.use(staticRouter());
 
   return app;
 }
